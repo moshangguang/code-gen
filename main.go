@@ -1,11 +1,11 @@
 package main
 
 import (
-	"code-gen/settings"
 	"code-gen/tutorials"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/flopp/go-findfont"
 	"os"
@@ -16,8 +16,9 @@ var topWindow fyne.Window
 
 func main() {
 	a := app.NewWithID("code-gen")
-	global := settings.GetGlobal()
-	a.Settings().SetTheme(global.GetTheme())
+	if os.Getenv("CODE_GEN_THEME") == "dark" {
+		a.Settings().SetTheme(theme.DarkTheme())
+	}
 	w := a.NewWindow("一个平平无奇的代码生成器")
 	topWindow = w
 	title := widget.NewLabel("Component name")
@@ -50,7 +51,7 @@ func main() {
 		split.Offset = 0.2
 		w.SetContent(split)
 	}
-	w.Resize(fyne.NewSize(600, 600))
+	w.Resize(fyne.NewSize(800, 600))
 	w.ShowAndRun()
 }
 

@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f87679d2-352f-4dd0-96d8-4788e67ea3fe" name="Default Changelist" comment="" />
+    <list default="true" id="f87679d2-352f-4dd0-96d8-4788e67ea3fe" name="Default Changelist" comment="开发代码生成器">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contract/connection.go" beforeDir="false" afterPath="$PROJECT_DIR$/contract/connection.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings/global.go" beforeDir="false" afterPath="$PROJECT_DIR$/settings/global.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings/java.go" beforeDir="false" afterPath="$PROJECT_DIR$/settings/java.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings/mysql_connect.go" beforeDir="false" afterPath="$PROJECT_DIR$/settings/mysql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/mysql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/mysql_java.go" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/mysql_java.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/AUTHORS" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/CONTRIBUTORS" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/geom.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/paint.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/raster.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/stroke.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/face.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/glyph.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/hint.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/opcodes.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/truetype.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/modules.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/modules.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,6 +39,11 @@
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../Golang/go14" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GoLibraries">
@@ -129,6 +157,11 @@
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial commit" />
+    <MESSAGE value="开发代码生成器" />
+    <option name="LAST_COMMIT_MESSAGE" value="开发代码生成器" />
+  </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
     <environment>
@@ -136,5 +169,20 @@
         <entry key="GOPROXY" value="https://goproxy.cn,direct" />
       </map>
     </environment>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/contract/connection.go</url>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/tutorials/mysql.go</url>
+          <line>62</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

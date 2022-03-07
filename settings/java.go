@@ -11,4 +11,6 @@ type Lombok struct {
 	Slf4j              bool
 	NoArgsConstructor  bool
 	AllArgsConstructor bool
+	ToString           bool
+	EqualsAndHashCode  bool
 }

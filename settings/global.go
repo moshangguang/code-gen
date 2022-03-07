@@ -1,24 +1,34 @@
 package settings
 
 import (
-	"code-gen/enum/Theme"
 	"code-gen/utils/files"
+	"code-gen/utils/timestamp"
 	"encoding/json"
-	"fyne.io/fyne/v2"
+	"sync"
 )
 
-type Global struct {
-	MySQLConnect []MySQLConnect
-	Java         Java
-	Theme        Theme.Theme
+type Global interface {
+	GetMySQLConnections() MySQLConnections
+	GetLombok() Lombok
+	ChangLombokData(open bool)
+	ChangeLombokGetter(open bool)
+	ChangeLombokSetter(open bool)
+	ChangeLombokSlf4j(open bool)
+	ChangeNoArgsConstructor(open bool)
+	ChangeAllArgsConstructor(open bool)
+	ChangeLombokToString(open bool)
+	ChangeEqualsAndHashCode(open bool)
 }
 
-func (global Global) GetTheme() fyne.Theme {
-	return global.Theme.ToTheme()
+type global struct {
+	*sync.RWMutex `json:"-"`
+	MySQLConnect  MySQLConnections
+	Java          Java
 }
 
-var globalSet = &Global{
-	MySQLConnect: make([]MySQLConnect, 0),
+var globalSet = &global{
+	RWMutex:      new(sync.RWMutex),
+	MySQLConnect: make(MySQLConnections, 0),
 	Java: Java{
 		Lombok: Lombok{
 			Data:               false,
@@ -29,25 +39,105 @@ var globalSet = &Global{
 			AllArgsConstructor: true,
 		},
 	},
-	Theme: Theme.Dark,
 }
 
-func (global *Global) ChangeTheme(theme Theme.Theme) {
-	global.Theme = theme
+func (global *global) SaveMySQLConnection(conn MySQLConnect) {
+	conn.CreateTime = timestamp.Now().TimeStamp()
+	save := false
+	for i := range global.MySQLConnect {
+		connection := global.MySQLConnect[i]
+		if connection.Name != conn.Name {
+			continue
+		}
+		conn.CreateTime = connection.CreateTime
+		global.MySQLConnect[i] = conn
+		save = true
+	}
+	if !save {
+		global.MySQLConnect = append(global.MySQLConnect, conn)
+	}
+	global.Save()
+}
+func (global *global) GetMySQLConnections() MySQLConnections {
+	global.RLock()
+	defer global.RUnlock()
+	return global.MySQLConnect
+}
+func (global *global) GetLombok() Lombok {
+	global.RLock()
+	defer global.RUnlock()
+	return global.Java.Lombok
+}
+func (global *global) ChangLombokData(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.Data = open
+	global.Save()
+}
+
+func (global *global) ChangeLombokGetter(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.Getter = open
+	global.Save()
+}
+
+func (global *global) ChangeLombokSetter(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.Setter = open
+	global.Save()
+}
+
+func (global *global) ChangeLombokSlf4j(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.Slf4j = open
+	global.Save()
+}
+
+func (global *global) ChangeNoArgsConstructor(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.NoArgsConstructor = open
+	global.Save()
+}
+func (global *global) ChangeAllArgsConstructor(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.AllArgsConstructor = open
+	global.Save()
+}
+func (global *global) ChangeLombokToString(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.ToString = open
+	global.Save()
+}
+
+func (global *global) ChangeEqualsAndHashCode(open bool) {
+	global.Lock()
+	defer global.Unlock()
+	global.Java.Lombok.EqualsAndHashCode = open
 	global.Save()
 }
 
 const SettingFile = "code-gen"
 
-func (global Global) Save() {
-	bytes, err := json.Marshal(global)
-	if err != nil {
-		return
-	}
-	files.WriteTempFileContent(SettingFile, bytes)
+func (global *global) Save() {
+	go func() {
+		global.Lock()
+		defer global.Unlock()
+		bytes, err := json.Marshal(global)
+		if err != nil {
+			return
+		}
+		files.WriteTempFileContent(SettingFile, bytes)
+	}()
+
 }
 
-func GetGlobal() *Global {
+func GetGlobal() Global {
 	return globalSet
 }
 
@@ -56,7 +146,9 @@ func init() {
 	if len(content) == 0 {
 		return
 	}
-	g := new(Global)
+	g := &global{
+		RWMutex: new(sync.RWMutex),
+	}
 	err := json.Unmarshal(content, g)
 	if err != nil {
 		return

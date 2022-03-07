@@ -1,6 +1,7 @@
 package tutorials
 
 import (
+	"code-gen/settings"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
@@ -8,26 +9,77 @@ import (
 )
 
 func makeEntityScene() fyne.CanvasObject {
+	global := settings.GetGlobal()
+	lombok := global.GetLombok()
+	getter := &widget.Check{
+		Text:    "@Getter",
+		Checked: lombok.Getter,
+		OnChanged: func(b bool) {
+			global.ChangeLombokGetter(b)
+		},
+	}
+	setter := &widget.Check{
+		Text:    "@Setter",
+		Checked: lombok.Setter,
+		OnChanged: func(b bool) {
+			global.ChangeLombokSetter(b)
+		},
+	}
+	data := &widget.Check{
+		Text:    "@Data",
+		Checked: lombok.Data,
+		OnChanged: func(b bool) {
+			global.ChangLombokData(b)
+		},
+	}
+
+	slf4j := &widget.Check{
+		Text:    "@Slf4j",
+		Checked: lombok.Slf4j,
+		OnChanged: func(b bool) {
+			global.ChangeLombokSlf4j(b)
+		},
+	}
+
+	noArgsConstructor := &widget.Check{
+		Text:    "@NoArgsConstructor",
+		Checked: lombok.NoArgsConstructor,
+		OnChanged: func(b bool) {
+			global.ChangeNoArgsConstructor(b)
+		},
+	}
+
+	allArgsConstructor := &widget.Check{
+		Text:    "@AllArgsConstructor",
+		Checked: lombok.AllArgsConstructor,
+		OnChanged: func(b bool) {
+			global.ChangeAllArgsConstructor(b)
+		},
+	}
+	toString := &widget.Check{
+		Text:    "@ToString",
+		Checked: lombok.ToString,
+		OnChanged: func(b bool) {
+			global.ChangeLombokToString(b)
+		},
+	}
+	equalsAndHashCode := &widget.Check{
+		Text:    "@EqualsAndHashCode",
+		Checked: lombok.EqualsAndHashCode,
+		OnChanged: func(b bool) {
+			global.ChangeEqualsAndHashCode(b)
+		},
+	}
 	lombokCheck := container.NewGridWithColumns(
 		3,
-		widget.NewCheck("@Getter", func(b bool) {
-
-		}),
-		widget.NewCheck("@Setter", func(b bool) {
-
-		}),
-		widget.NewCheck("@Data", func(b bool) {
-
-		}),
-		widget.NewCheck("@Slf4j", func(b bool) {
-
-		}),
-		widget.NewCheck("@NoArgsConstructor", func(b bool) {
-
-		}),
-		widget.NewCheck("@AllArgsConstructor", func(b bool) {
-
-		}),
+		getter,
+		setter,
+		data,
+		slf4j,
+		noArgsConstructor,
+		allArgsConstructor,
+		toString,
+		equalsAndHashCode,
 	)
 	form := &widget.Form{
 		Items: []*widget.FormItem{
@@ -49,16 +101,14 @@ func makeMyBatisScene() fyne.CanvasObject {
 		"insert incr",
 		"insert one",
 		"insert many",
-		"insert duplicate",
+		"insert dup",
 		"replace one",
 		"replace many",
 		"delete",
-		"delete by id",
-		"delete by ids",
 		"update",
-		"update by id",
-		"update by ids",
-		"select",
+		"select count",
+		"select one",
+		"select many",
 	}, func(s string) {
 
 	})
@@ -77,35 +127,28 @@ func makeMyBatisScene() fyne.CanvasObject {
 			PlaceHolder: "method",
 		},
 		&widget.Entry{
-			PlaceHolder: "primary key",
-		},
-		&widget.Button{
-			Text: "取消勾选",
-			Icon: theme.CancelIcon(),
-			OnTapped: func() {
-
-			},
+			PlaceHolder: "entity",
 		},
 		genButton,
 	)
 	right := container.NewVScroll(rightBox)
-	selectChecks := widget.NewCheckGroup([]string{"=", "!=", ">", "<", ">=", "<="}, func(strings []string) {
+	selectChecks := widget.NewCheckGroup([]string{"=", "!=", ">", "<", ">=", "<=", "in"}, func(strings []string) {
 
 	})
 	selectChecks.Horizontal = true
 	insertUpdateChecks := widget.NewCheckGroup([]string{
-		"插入", "更新",
+		"插入", "更新", "返回",
 	}, func(strings []string) {
 
 	})
 	insertUpdateChecks.Horizontal = true
 	form := widget.NewForm(
 		&widget.FormItem{
-			Text:   "插入/更新项",
+			Text:   "字段",
 			Widget: insertUpdateChecks,
 		},
 		&widget.FormItem{
-			Text:   "查询项",
+			Text:   "条件",
 			Widget: selectChecks,
 		})
 	ac := widget.NewAccordion(
@@ -151,6 +194,7 @@ func MySQLJavaScene(_ fyne.Window) fyne.CanvasObject {
 			Widget: widget.NewSelectEntry([]string{}),
 		},
 	)
+
 	//locations := makeTabLocationSelect(tabs.SetTabLocation)
 	//border := container.NewBorder(locations, nil, nil, nil, tabs)
 	return container.NewBorder(form, nil, nil, nil, tabs)
