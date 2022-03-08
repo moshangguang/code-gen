@@ -11,6 +11,7 @@ type MySQLConnect struct {
 	CreateTime timestamp.Timestamp
 }
 type MySQLConnections []MySQLConnect
+type MySQLConnectFilter func(MySQLConnect) bool
 
 func (connections MySQLConnections) GetNames() []string {
 	result := make([]string, 0, len(connections))
@@ -19,4 +20,27 @@ func (connections MySQLConnections) GetNames() []string {
 	}
 	return result
 
+}
+func (connections MySQLConnections) Filter(filter MySQLConnectFilter) MySQLConnections {
+	result := make(MySQLConnections, 0, len(connections))
+	for _, connection := range connections {
+		if filter(connection) {
+			result = append(result, connection)
+		}
+	}
+	return result
+}
+func (connections MySQLConnections) ContainsName(name string) bool {
+	for _, connection := range connections {
+		if connection.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (connections MySQLConnections) RemoveByName(name string) MySQLConnections {
+	return connections.Filter(func(connect MySQLConnect) bool {
+		return connect.Name != name
+	})
 }

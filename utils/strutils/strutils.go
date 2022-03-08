@@ -1,0 +1,5 @@
+package strutils
+
+func IsEmpty() {
+
+}

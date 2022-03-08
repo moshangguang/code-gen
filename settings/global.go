@@ -8,6 +8,9 @@ import (
 )
 
 type Global interface {
+	SaveMySQLConnection(conn MySQLConnect)
+	RemoveMySQLConnection(name string) bool
+	GetMySQLConnection(name string) (MySQLConnect, bool)
 	GetMySQLConnections() MySQLConnections
 	GetLombok() Lombok
 	ChangLombokData(open bool)
@@ -41,9 +44,33 @@ var globalSet = &global{
 	},
 }
 
+func (global *global) GetMySQLConnection(name string) (MySQLConnect, bool) {
+	global.RLock()
+	defer global.RUnlock()
+	for _, connect := range global.MySQLConnect {
+		if connect.Name == name {
+			return connect, true
+		}
+	}
+	return MySQLConnect{}, false
+}
+
+func (global *global) RemoveMySQLConnection(name string) bool {
+	global.RLock()
+	defer global.RUnlock()
+	if !global.MySQLConnect.ContainsName(name) {
+		return false
+	}
+	global.MySQLConnect = global.MySQLConnect.RemoveByName(name)
+	global.Save()
+	return true
+}
+
 func (global *global) SaveMySQLConnection(conn MySQLConnect) {
 	conn.CreateTime = timestamp.Now().TimeStamp()
 	save := false
+	global.Unlock()
+	defer global.Unlock()
 	for i := range global.MySQLConnect {
 		connection := global.MySQLConnect[i]
 		if connection.Name != conn.Name {
