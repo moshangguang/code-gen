@@ -1,9 +1,11 @@
-package tutorials
+package mysql
 
 import (
 	"code-gen/settings"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -173,25 +175,61 @@ func makeMyBatisScene() fyne.CanvasObject {
 	return container.NewBorder(nil, nil, nil, right, container.NewVScroll(container.NewVBox(ac)))
 
 }
-func MySQLJavaScene(_ fyne.Window) fyne.CanvasObject {
+func MySQLJavaScene(win fyne.Window) fyne.CanvasObject {
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Entity", makeEntityScene()),
 		container.NewTabItem("MyBatis", makeMyBatisScene()),
 	)
+	global := settings.GetGlobal()
+	tableSelect := widget.NewSelectEntry([]string{})
+
+	dbSelect := widget.NewSelectEntry([]string{})
+	connSelect := widget.NewSelect(global.GetMySQLConnections().GetNames(), func(s string) {
+		connection, ok := global.GetMySQLConnection(s)
+		if !ok {
+			return
+		}
+		db, err := GetMySQLDatabase(connection)
+		if err != nil {
+			dialog.ShowInformation("错误", fmt.Sprintf("连接MySQL出错,error:%s", err.Error()), win)
+			return
+		}
+		defer db.Close()
+		data := make([]string, 0)
+		rows, err := db.Raw("show databases").Rows()
+		if err != nil {
+			dialog.ShowInformation("错误", fmt.Sprintf("连接MySQL出错,error:%s", err.Error()), win)
+			return
+		}
+		for rows.Next() {
+			var database string
+			if err = rows.Scan(&database); err != nil {
+				dialog.ShowInformation("错误", fmt.Sprintf("连接MySQL出错,error:%s", err.Error()), win)
+				return
+			}
+			data = append(data, database)
+		}
+		dbSelect.SetOptions(data)
+		if len(data) != 0 {
+			dbSelect.SetText(data[0])
+		}
+		dbSelect.Refresh()
+	})
 	form := widget.NewForm(
 		&widget.FormItem{
-			Text: "连接",
-			Widget: widget.NewSelect([]string{}, func(s string) {
+			Text:   "连接",
+			Widget: connSelect,
+		},
+		&widget.FormItem{
+			Text: "数据库",
+			Widget: container.NewBorder(dbSelect, nil, nil, widget.NewButton("搜索", func() {
+			})),
+		},
 
-			}),
-		},
 		&widget.FormItem{
-			Text:   "数据库",
-			Widget: widget.NewSelectEntry([]string{}),
-		},
-		&widget.FormItem{
-			Text:   "表",
-			Widget: widget.NewSelectEntry([]string{}),
+			Text: "表",
+			Widget: container.NewBorder(tableSelect, nil, nil, widget.NewButton("搜索", func() {
+			})),
 		},
 	)
 

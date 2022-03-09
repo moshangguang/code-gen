@@ -1,4 +1,4 @@
-package tutorials
+package mysql
 
 import (
 	"code-gen/settings"
@@ -101,8 +101,15 @@ func MySQLScene(win fyne.Window) fyne.CanvasObject {
 				dialog.ShowInformation("错误", fmt.Sprintf("端口出错,error:%s", err.Error()), win)
 				return
 			}
-			url := fmt.Sprintf("%s:%s@tcp(%s:%d)/test?charset=utf8", user, pwd, host, port)
-			db, err := gorm.Open("mysql", url)
+			mysqlConn := settings.MySQLConnect{
+				Name:       conn,
+				Host:       host,
+				Port:       port,
+				User:       user,
+				Password:   pwd,
+				CreateTime: timestamp.Now().TimeStamp(),
+			}
+			db, err := GetMySQLDatabase(mysqlConn)
 			if err != nil {
 				dialog.ShowInformation("错误", fmt.Sprintf("连接MySQL出错,error:%s", err.Error()), win)
 				return
@@ -129,4 +136,16 @@ func MySQLScene(win fyne.Window) fyne.CanvasObject {
 	})),
 	)
 	return form
+}
+
+func GetMySQLDatabase(conn settings.MySQLConnect) (*gorm.DB, error) {
+	url := fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/test?charset=utf8",
+		conn.User,
+		conn.Password,
+		conn.Host,
+		conn.Port,
+	)
+	return gorm.Open("mysql", url)
+
 }

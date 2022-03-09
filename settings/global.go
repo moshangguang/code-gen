@@ -69,7 +69,7 @@ func (global *global) RemoveMySQLConnection(name string) bool {
 func (global *global) SaveMySQLConnection(conn MySQLConnect) {
 	conn.CreateTime = timestamp.Now().TimeStamp()
 	save := false
-	global.Unlock()
+	global.Lock()
 	defer global.Unlock()
 	for i := range global.MySQLConnect {
 		connection := global.MySQLConnect[i]
