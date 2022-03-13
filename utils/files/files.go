@@ -2,6 +2,7 @@ package files
 
 import (
 	"code-gen/utils/running"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -43,4 +44,24 @@ func GetTempFileContent(fileName string) []byte {
 	body, err := ioutil.ReadAll(file)
 	running.Must(err)
 	return body
+}
+func Unmarshal(tmpFile string, obj interface{}) (bool, error) {
+	content := GetTempFileContent(tmpFile)
+	if len(content) == 0 {
+		return false, nil
+	}
+	err := json.Unmarshal(content, obj)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+func Marshal(tmpFile string, obj interface{}) error {
+	if bytes, err := json.Marshal(obj); err != nil {
+		return err
+	} else {
+		WriteTempFileContent(tmpFile, bytes)
+	}
+	return nil
 }

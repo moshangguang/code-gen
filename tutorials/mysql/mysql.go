@@ -1,8 +1,7 @@
 package mysql
 
 import (
-	"code-gen/settings"
-	"code-gen/utils/timestamp"
+	"code-gen/settings/mysql"
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -15,9 +14,9 @@ import (
 )
 
 func MySQLScene(win fyne.Window) fyne.CanvasObject {
-	global := settings.GetGlobal()
-	connects := global.GetMySQLConnections()
-	connEntry := widget.NewSelectEntry(connects.GetNames())
+	dictionary := mysql.GetDictionary()
+	connections := dictionary.All()
+	connEntry := widget.NewSelectEntry(connections.GetNames())
 	connEntry.PlaceHolder = "请输入或选择连接名"
 	hostEntry := widget.NewEntry()
 	portEntry := widget.NewEntry()
@@ -28,22 +27,21 @@ func MySQLScene(win fyne.Window) fyne.CanvasObject {
 	userEntry.SetPlaceHolder("root")
 	passwordEntry := widget.NewEntry()
 	connEntry.OnChanged = func(s string) {
-		connection, ok := global.GetMySQLConnection(s)
+		conn, ok := dictionary.Get(s)
 		if !ok {
 			return
 		}
-		hostEntry.Text = connection.Host
+		hostEntry.Text = conn.Host
 		hostEntry.Refresh()
-		portEntry.Text = fmt.Sprintf("%d", connection.Port)
+		portEntry.Text = fmt.Sprintf("%d", conn.Port)
 		portEntry.Refresh()
-		userEntry.Text = connection.User
+		userEntry.Text = conn.User
 		userEntry.Refresh()
-		passwordEntry.Text = connection.Password
+		passwordEntry.Text = conn.Password
 		passwordEntry.Refresh()
 	}
 	reset := func() {
 		connEntry.Text = ""
-		connEntry.SetOptions(global.GetMySQLConnections().GetNames())
 		connEntry.Refresh()
 		hostEntry.Text = ""
 		hostEntry.Refresh()
@@ -74,15 +72,11 @@ func MySQLScene(win fyne.Window) fyne.CanvasObject {
 			},
 		},
 		OnCancel: func() {
-			ok := global.RemoveMySQLConnection(connEntry.Text)
-			reset()
-			if ok {
-				fyne.CurrentApp().SendNotification(&fyne.Notification{
-					Title:   "MySQL",
-					Content: "删除连接成功...",
-				})
+			if len(connEntry.Text) == 0 {
+				return
 			}
-
+			dictionary.Remove(connEntry.Text)
+			reset()
 		},
 		CancelText: "删除",
 		OnSubmit: func() {
@@ -101,28 +95,18 @@ func MySQLScene(win fyne.Window) fyne.CanvasObject {
 				dialog.ShowInformation("错误", fmt.Sprintf("端口出错,error:%s", err.Error()), win)
 				return
 			}
-			mysqlConn := settings.MySQLConnect{
-				Name:       conn,
-				Host:       host,
-				Port:       port,
-				User:       user,
-				Password:   pwd,
-				CreateTime: timestamp.Now().TimeStamp(),
+			mysqlConn := mysql.Connection{
+				Name:     conn,
+				Host:     host,
+				Port:     port,
+				User:     user,
+				Password: pwd,
 			}
-			db, err := GetMySQLDatabase(mysqlConn)
-			if err != nil {
-				dialog.ShowInformation("错误", fmt.Sprintf("连接MySQL出错,error:%s", err.Error()), win)
+			if err = mysqlConn.MustActive(); err != nil {
+				dialog.ShowInformation("错误", err.Error(), win)
 				return
 			}
-			defer db.Close()
-			global.SaveMySQLConnection(settings.MySQLConnect{
-				Name:       conn,
-				Host:       host,
-				Port:       port,
-				User:       user,
-				Password:   pwd,
-				CreateTime: timestamp.Now().TimeStamp(),
-			})
+			dictionary.Save(mysqlConn)
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   "MySQL",
 				Content: "MySQL数据库连接成功...",
@@ -138,13 +122,18 @@ func MySQLScene(win fyne.Window) fyne.CanvasObject {
 	return form
 }
 
-func GetMySQLDatabase(conn settings.MySQLConnect) (*gorm.DB, error) {
+func GetMySQLDatabase(conn mysql.Connection, dbname ...string) (*gorm.DB, error) {
+	dbName := "test"
+	if len(dbname) != 0 {
+		dbName = dbname[0]
+	}
 	url := fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/test?charset=utf8",
+		"%s:%s@tcp(%s:%d)/%s?charset=utf8",
 		conn.User,
 		conn.Password,
 		conn.Host,
 		conn.Port,
+		dbName,
 	)
 	return gorm.Open("mysql", url)
 

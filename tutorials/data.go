@@ -17,7 +17,7 @@ var Tutorials = map[string]Tutorial{
 	},
 	"MySQLJava": {
 		Title: "Java",
-		View:  mysql.MySQLJavaScene,
+		View:  mysql.JavaScene,
 	},
 }
 
