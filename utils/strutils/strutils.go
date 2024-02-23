@@ -29,3 +29,9 @@ func PatternTrimSpace(data []string, pattern string) []string {
 	}
 	return result
 }
+func IsEmptyString(str string) bool {
+	return len(strings.TrimSpace(str)) == 0
+}
+func IsNotEmptyString(str string) bool {
+	return !IsEmptyString(str)
+}

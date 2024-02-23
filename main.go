@@ -1,13 +1,15 @@
 package main
 
 import (
-	"code-gen/tutorials"
+	"code-gen/pkg/initialize"
+	"code-gen/pkg/tutorials"
+	theme2 "code-gen/theme"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/flopp/go-findfont"
+	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strings"
 )
@@ -15,10 +17,8 @@ import (
 var topWindow fyne.Window
 
 func main() {
+	initialize.Init()
 	a := app.NewWithID("code-gen")
-	if os.Getenv("CODE_GEN_THEME") == "dark" {
-		a.Settings().SetTheme(theme.DarkTheme())
-	}
 	w := a.NewWindow("一个平平无奇的代码生成器")
 	topWindow = w
 	title := widget.NewLabel("Component name")
@@ -59,7 +59,7 @@ const preferenceCurrentTutorial = "currentTutorial"
 
 func makeNav(setTutorial func(tutorial tutorials.Tutorial), loadPrevious bool) fyne.CanvasObject {
 	a := fyne.CurrentApp()
-
+	a.Settings().SetTheme(theme2.NewMyTheme(theme2.ApplyDark(true)))
 	tree := &widget.Tree{
 		ChildUIDs: func(uid string) []string {
 			return tutorials.TutorialIndex[uid]
