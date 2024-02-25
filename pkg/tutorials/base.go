@@ -1,4 +1,4 @@
-package mysql
+package tutorials
 
 import (
 	"code-gen/data"

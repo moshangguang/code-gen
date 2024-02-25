@@ -1,71 +1,50 @@
 package ddl
 
-import (
-	"code-gen/pkg/models"
-	"code-gen/utils/md5"
-	"code-gen/utils/strutils"
-	"fmt"
-	"github.com/go-xorm/xorm"
-	"sync"
-)
-
-type MySQLConnectionManager struct {
-	sync.RWMutex
-	engine map[string]*xorm.Engine
+type MySQLConnection struct {
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Database string `json:"database,omitempty"`
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
 }
 
-func (mgr *MySQLConnectionManager) getConnection(dsnMd5 string) (*xorm.Engine, bool) {
-	mgr.RLock()
-	defer mgr.RUnlock()
-	if len(mgr.engine) == 0 {
-		return nil, false
+type MySQLConnectionSlice []MySQLConnection
+
+func (slice MySQLConnectionSlice) First(filter MySQLConnectionFilter) (MySQLConnection, bool) {
+	for _, item := range slice {
+		if filter(item) {
+			return item, true
+		}
 	}
-	engine, ok := mgr.engine[dsnMd5]
-	return engine, ok
+	return MySQLConnection{}, false
 }
 
-func (mgr *MySQLConnectionManager) InitConnection(dsn string) (*xorm.Engine, error) {
-	orm, err := xorm.NewEngine("mysql", dsn)
-	if err != nil {
-		return nil, err
+func (slice MySQLConnectionSlice) Index(filter MySQLConnectionFilter) (index int) {
+	for i, item := range slice {
+		if filter(item) {
+			return i
+		}
 	}
-	if err = orm.Ping(); err != nil {
-		return nil, err
-	}
-	dsnMd5 := md5.GetMd5(dsn)
-	mgr.Lock()
-	defer mgr.Unlock()
-	if mgr.engine == nil {
-		mgr.engine = make(map[string]*xorm.Engine)
-	}
-	engine, ok := mgr.engine[dsnMd5]
-	if ok {
-		_ = orm.Close()
-		return engine, nil
-	}
-	mgr.engine[dsnMd5] = orm
-	return orm, nil
+	return -1
 }
-func (mgr *MySQLConnectionManager) LoadConnection(connection models.MySQLConnection) (*xorm.Engine, error) {
-	var dsn string
-	if strutils.IsEmptyString(connection.Database) {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/", connection.UserName, connection.Password, connection.Host, connection.Port)
-	} else {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4",
-			connection.UserName,
-			connection.Password,
-			connection.Host,
-			connection.Port,
-			connection.Database,
-		)
+
+func (slice MySQLConnectionSlice) Filter(filter MySQLConnectionFilter) MySQLConnectionSlice {
+	result := make(MySQLConnectionSlice, 0, len(slice)/2)
+	for _, item := range slice {
+		if filter(item) {
+			result = append(result, item)
+		}
 	}
-	dsnMd5 := md5.GetMd5(dsn)
-	engine, ok := mgr.getConnection(dsnMd5)
-	if ok {
-		return engine, nil
+	return result
+}
+func (slice MySQLConnectionSlice) GetNames() []string {
+	result := make([]string, 0, len(slice))
+	for _, item := range slice {
+		result = append(result, item.Name)
 	}
-	return mgr.InitConnection(dsn)
+	return result
 }
-func NewMySQLConnectionManager() *MySQLConnectionManager {
-	return &MySQLConnectionManager{}
-}
+
+type MySQLConnectionFilter func(MySQLConnection) bool

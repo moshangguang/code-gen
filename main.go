@@ -92,20 +92,6 @@ func makeNav(setTutorial func(tutorial tutorials.Tutorial), loadPrevious bool) f
 		currentPref := a.Preferences().StringWithFallback(preferenceCurrentTutorial, "MySQL2")
 		tree.Select(currentPref)
 	}
-	//global := settings.GetGlobal()
-	//themes := fyne.NewContainerWithLayout(layout.NewGridLayout(2),
-	//	widget.NewButton("Dark", func() {
-	//		a.Settings().SetTheme(theme.DarkTheme())
-	//		global.ChangeTheme(Theme.Dark)
-	//		topWindow.Content().Refresh()
-	//	}),
-	//	widget.NewButton("Light", func() {
-	//		a.Settings().SetTheme(theme.LightTheme())
-	//		global.ChangeTheme(Theme.Light)
-	//		topWindow.Content().Refresh()
-	//	}),
-	//)
-
 	return container.NewBorder(nil, nil, nil, nil, tree)
 }
 func init() {

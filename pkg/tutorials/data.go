@@ -1,7 +1,6 @@
 package tutorials
 
 import (
-	"code-gen/pkg/tutorials/mysql"
 	"fyne.io/fyne/v2"
 )
 
@@ -13,19 +12,19 @@ type Tutorial struct {
 var Tutorials = map[string]Tutorial{
 	"MySQL": {
 		Title: "MySQL",
-		View:  mysql.MySQLConnections,
+		View:  MySQLEditScene,
 	},
 	"MySQLAddConn": {
 		Title: "新增连接",
-		View:  mysql.MySQLScene,
+		View:  MySQLAddScene,
 	},
 	"MySQLConnManager": {
 		Title: "管理连接",
-		View:  mysql.MySQLConnections,
+		View:  MySQLEditScene,
 	},
 	"Golang": {
 		Title: "Golang",
-		View:  mysql.MySQLConnections,
+		View:  GolangScene,
 	},
 	//"MySQLJava": {
 	//	Title: "Java",
